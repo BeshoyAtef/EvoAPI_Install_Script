@@ -12,8 +12,6 @@ echo -e "${RED}Salve-a, de preferência em um cofre de senhas como o BitWarden.$
 read -p "Digite o nome do domínio (ex: example.com): " DOMAIN_NAME
 read -p "Digite o subdomínio (ex: evo): " SUBDOMAIN
 read -p "Digite o e-mail para certificados SSL (ex: user@example.com): " SSL_EMAIL
-read -p "Digite o código UTC para fuso horário (ex: America/Sao_Paulo): " GENERIC_TIMEZONE
-echo -e "${YL}Fuso horário padrão definido como: $GENERIC_TIMEZONE"
 echo -e "${YL}Sua chave de autenticação ficou definida como: $AUTHENTICATION_API_KEY"
 echo -e "${RED}Salve-a, de preferência em um cofre de senhas como o BitWarden.${GR}"
 
@@ -29,8 +27,6 @@ DOMAIN_NAME=${DOMAIN_NAME}
 
 SUBDOMAIN=${SUBDOMAIN}
 
-GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
-
 SSL_EMAIL=${SSL_EMAIL}
 
 EOL
@@ -43,11 +39,8 @@ create_docker_compose_file() {
   cat <<EOL > docker-compose.yml
 services:
   traefik:
-
     image: "traefik"
-
     restart: always
-
     command:
       - "--api=true"
       - "--api.insecure=true"
@@ -60,11 +53,9 @@ services:
       - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
       - "--certificatesresolvers.mytlschallenge.acme.email=${SSL_EMAIL}"
       - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
-
     ports:
       - "80:80"
       - "443:443"
-
     volumes:
       - traefik_data:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -72,23 +63,18 @@ services:
 
   evolution-api:
     container_name: evolution_api
-
     image: atendai/evolution-api
-
     restart: always
-
     ports:
       - "8080:8080"
     env_file:
       - .env
-
     volumes:
       - evolution_store:/evolution/store
       - evolution_instances:/evolution/instances
-
     labels:
       - traefik.enable=true
-      - traefik.http.routers.evolution_api.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`)
+      - traefik.http.routers.evolution_api.rule=Host("${SUBDOMAIN}.${DOMAIN_NAME}")
       - traefik.http.routers.evolution_api.tls=true
       - traefik.http.routers.evolution_api.entrypoints=web,websecure
       - traefik.http.routers.evolution_api.tls.certresolver=mytlschallenge
@@ -101,8 +87,6 @@ services:
       - traefik.http.middlewares.evolution_api.headers.STSIncludeSubdomains=true
       - traefik.http.middlewares.evolution_api.headers.STSPreload=true
       - traefik.http.routers.evolution_api.middlewares=evolution_api@docker
-
-
 volumes:
   evolution_store:
   evolution_instances:
