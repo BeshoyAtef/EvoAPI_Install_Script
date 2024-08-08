@@ -1,6 +1,8 @@
 # EvoAPI_Install_Script
 Bash script para instalação do Docker Compose e da Evolution API no Ubuntu.
 
+PRE-REQUISITO: PARA UTILIZAR ESSES SCRIPTS, VOCÊ JÁ DEVE TER UMA ENTRADA DE DNS APONTANDO SUBDOMINIO.DOMINIO.COM.BR PARA O ENDEREÇO DO SEU SERVIDOR DA EVOLUTION API.
+
 **Intruções para utilização desses scripts **
 
 1 - Crie uma pasta em seu diretório /home/user com o nome de evo e entre nela;
@@ -30,6 +32,16 @@ chmod a+x installDocker.sh
 nano configEvo.sh
 
 clique com botão direito do mouse na tela do terminal com o arquivo em edição (cola o conteúdo)
+
+ATENÇÃO, IMPORTANTE! CASO VOCÊ JÁ TENHA ALGUM SERVIÇO UTILIZANDO AS PORTAS 80 E 443 (ALGUM WEBSERVER OU PROXY REVERSO), SERÁ NECESSÁRIO CONFIGURAR O PORT BIND NO ARQUIVO docker-compose.yaml.
+Você pode utilizar, por exemplo:
+ports:
+      - "81:81"
+      - "444:444"
+
+TENDO TAMBÉM O CUIDADO DE ALTERAR OS COMANDOS NO SERVIÇO DO TRAEFIK:
+ - "--entrypoints.web.address=:81"
+ - "--entrypoints.websecure.address=:444"
 
 ctrl + O (para salvar)
 
