@@ -1,11 +1,11 @@
 # EvoAPI_Install_Script
-Bash script para instalação do Docker Compose e da Evolution API no Ubuntu.
+Bash script for installing Docker Compose and the Evolution API on Ubuntu.
 
-PRE-REQUISITO: PARA UTILIZAR ESSES SCRIPTS, VOCÊ JÁ DEVE TER UMA ENTRADA DE DNS APONTANDO SUBDOMINIO.DOMINIO.COM.BR PARA O ENDEREÇO DO SEU SERVIDOR DA EVOLUTION API.
+PREREQUISITE: TO USE THESE SCRIPTS, YOU MUST ALREADY HAVE A DNS ENTRY POINTING SUBDOMINIO.DOMINIO.COM.BR TO THE ADDRESS OF YOUR EVOLUTION API SERVER.
 
-**Intruções para utilização desses scripts **
+**Instructions for using these scripts **
 
-1 - Crie uma pasta em seu diretório /home/user com o nome de evo e entre nela;
+1 - Create a folder in your /home/user directory with the name evo and enter it;
 
 cd /home/user
 
@@ -13,28 +13,28 @@ mkdir evo
 
 cd evo/
 
-2 - Crie o arquivo do script de instalação do Docker e copie para ele o conteúdo do arquivo installDocker.sh que está nesse repositório;
+2 - Create the Docker installation script file and copy the contents of the installDocker.sh file in this repository into it;
 
 nano installDocker.sh
 
-clique com botão direito do mouse na tela do terminal com o arquivo em edição (cola o conteúdo)
+right-click on the terminal screen with the file being edited (paste the contents)
 
-ctrl + O (para salvar)
+ctrl + O (to save)
 
-ctrl + X (para sair)
+ctrl + X (to exit)
 
-3 - Dê permissão de execução para o arquivo criado;
+3 - Give the created file execute permission;
 
 chmod a+x installDocker.sh
 
-4 - Crie o arquivo do script de configuração da Evo API e copie para ele o conteúdo do arquivo configEvo.sh que está nesse repositório;
+4 - Create the Evo API configuration script file and copy the contents of the configEvo.sh file in this repository into it;
 
 nano configEvo.sh
 
-clique com botão direito do mouse na tela do terminal com o arquivo em edição (cola o conteúdo)
+right-click on the terminal screen with the file being edited (paste the contents)
 
-ATENÇÃO, IMPORTANTE! CASO VOCÊ JÁ TENHA ALGUM SERVIÇO UTILIZANDO AS PORTAS 80 E 443 (ALGUM WEBSERVER OU PROXY REVERSO), SERÁ NECESSÁRIO CONFIGURAR O PORT BIND NO ARQUIVO docker-compose.yaml.
-Você pode utilizar, por exemplo:
+ATTENTION, IMPORTANT! IF YOU ALREADY HAVE A SERVICE USING PORTS 80 AND 443 (SOME WEBSERVER OR REVERSE PROXY), YOU WILL NEED TO CONFIGURE THE BIND PORT IN THE docker-compose.yaml FILE.
+You can use, for example:
 
 ports:
 
@@ -43,29 +43,10 @@ ports:
       - "444:444"
       
 
-TENDO TAMBÉM O CUIDADO DE ALTERAR OS COMANDOS NO SERVIÇO DO TRAEFIK:
+ALSO TAKING CARE TO CHANGE THE COMMANDS IN THE TRAEFIK SERVICE:
 
  - "--entrypoints.web.address=:81"
   
  - "--entrypoints.websecure.address=:444"
-   
 
-ctrl + O (para salvar)
-
-ctrl + X (para sair)
-
-5 - Dê permissão de execução para o arquivo criado;
-
-chmod a+x configEvo.sh
-
-6 - Execute o script de instalação do Docker;
-
-./installDocker.sh
-
-7 - Execute o script de configuração da Evo API.
-
-./configEvo.sh
-
-P.S.: Todos os comandos e scripts devem ser executados com usuário padrão.
-
-P.S.2: Durante a execução do script de instalação do docker, será solicitada a senha de root para execução do gerenciador de pacotes.
+Translated with DeepL.com (free version)
