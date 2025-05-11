@@ -1,25 +1,25 @@
 #!/bin/bash
-# Variáveis cores de fontes
-YL='\033[1;33m'      # Yellow
-RED='\033[1;31m'         # Red
-GR='\033[0;32m'        # Green
+# Font colour variables
+YL='\033[1;33m' # Yellow
+RED='\033[1;31m' # Red
+GR='\033[0;32m' # Green
 
-# Script para Automação da Instalação da Evolution API
-# Prompt para variáveis de configuração
-read -p "Insira uma secret key de acesso. Utilize pelo menos 30 caracteres entre letras maiúsculas, minúsculas e números. Não utilize caracteres especiais. (ex: Bgk3cyNatd8AJNCHJDXI9SfADJCGFa7JXUSn7jSXKM9tSJC): " AUTHENTICATION_API_KEY
-echo -e "${YL}Sua chave de autenticação ficou definida como: $AUTHENTICATION_API_KEY"
-echo -e "${RED}Salve-a, de preferência em um cofre de senhas como o BitWarden.${GR}"
-read -p "Digite o nome do domínio (ex: example.com): " DOMAIN_NAME
-read -p "Digite o subdomínio (ex: evo): " SUBDOMAIN
-read -p "Digite o e-mail para certificados SSL (ex: user@example.com): " SSL_EMAIL
-echo -e "${YL}Sua chave de autenticação ficou definida como: $AUTHENTICATION_API_KEY"
-echo -e "${RED}Salve-a, de preferência em um cofre de senhas como o BitWarden.${GR}"
+# Script for Automation of Evolution API Installation
+# Prompt for configuration variables
+read -p "Enter an access secret key. Use at least 30 characters between uppercase, lowercase and numbers. Do not use special characters (e.g. Bgk3cyNatd8AJNCHJDXI9SfADJCGFa7JXUSn7jSXKM9tSJC): " AUTHENTICATION_API_KEY
+echo -e "${YL}Your authentication key is set to: $AUTHENTICATION_API_KEY"
+echo -e "${RED}Save it, preferably in a password vault like BitWarden. ${GR}"
+read -p "Enter the domain name (e.g. example. com): " DOMAIN_NAME
+read -p "Enter the subdomain (e.g. evo): " SUBDOMAIN
+read -p "Enter the email for SSL certificates (e.g. user@example.com): " SSL_EMAIL
+echo -e "${YL}Your authentication key is set to: $AUTHENTICATION_API_KEY"
+echo -e "${RED}Save it, preferably in a password vault like BitWarden.${GR}"
 
 
-# Função para criar o arquivo .env
+# Function to create the .env file
 create_env_file() {
-  echo -e "${YL}Criando arquivo .env...${GR}"
-  cat <<EOL > .env
+ echo -e "${YL}Creating .env file...${GR}"
+ cat <<EOL > .env
 
 AUTHENTICATION_API_KEY=$AUTHENTICATION_API_KEY
 
@@ -33,15 +33,15 @@ EOL
 }
 
 
-# Função para criar o arquivo docker-compose.yml
+# Function to create docker-compose.yml file
 create_docker_compose_file() {
-  echo -e "Criando docker-compose.yml..."
-  cat <<EOL > docker-compose.yml
+ echo -e "Creating docker-compose.yml..."
+ cat <<EOL > docker-compose.yml
 services:
-  traefik:
-    image: "traefik"
-    restart: always
-    command:
+ traefik:
+ image: "traefik"
+ restart: always
+ command:
       - "--api=true"
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -53,26 +53,26 @@ services:
       - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
       - "--certificatesresolvers.mytlschallenge.acme.email=${SSL_EMAIL}"
       - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
-    ports:
+ ports:
       - "80:80"
       - "443:443"
-    volumes:
+ volumes:
       - traefik_data:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
 
   evolution-api:
-    container_name: evolution_api
-    image: atendai/evolution-api
-    restart: always
-    ports:
+ container_name: evolution_api
+ image: atendai/evolution-api
+ restart: always
+ ports:
       - "8080:8080"
-    env_file:
+ env_file:
       - .env
-    volumes:
+ volumes:
       - evolution_store:/evolution/store
       - evolution_instances:/evolution/instances
-    labels:
+ labels:
       - traefik.enable=true
       - traefik.http.routers.evolution_api.rule=Host("${SUBDOMAIN}.${DOMAIN_NAME}")
       - traefik.http.routers.evolution_api.tls=true
@@ -88,40 +88,40 @@ services:
       - traefik.http.middlewares.evolution_api.headers.STSPreload=true
       - traefik.http.routers.evolution_api.middlewares=evolution_api@docker
 volumes:
-  evolution_store:
-  evolution_instances:
-  traefik_data:
-    external: true      
+ evolution_store:
+ evolution_instances:
+ traefik_data:
+ external: true 
 EOL
 }
 
 
-# Função para criar os volumes do Docker
+# Function to create Docker volumes
 create_docker_volumes() {
-  echo -e "Criando volume do Docker..."
-  docker volume create traefik_data
-  sleep 1
+ echo -e "Creating Docker volume..."
+ docker volume create traefik_data
+ sleep 1
 }
 
-# Função para iniciar a Evo API
+# Function to start the Evo API
 start_evo() {
-  echo -e "${YL}Iniciando Evolution API..."
-  docker compose up -d
-  sleep 10
+ echo -e "${YL}Starting Evolution API..."
+ docker compose up -d
+ sleep 10
 }
 
-# Funções de arquivo
+# File functions
 create_env_file
 sleep 1
 
 create_docker_compose_file
 sleep 1
 
-# Criar volumes docker
+# Create docker volumes
 create_docker_volumes
 
-# Iniciar Evo
+# Start Evo
 start_evo
 
-echo -e "${YL}A instalação da Evolution API foi concluída. Acesse em: https://${SUBDOMAIN}.${DOMAIN_NAME}/manager"
-echo -e "${RED}Caso você tenha setado portas diferentes no bind, utilize a URL:Porta (ex: https://evo.dominio.com.br:444)"
+echo -e "${YL}The Evolution API installation has been completed. Log in at: https://${SUBDOMAIN}.${DOMAIN_NAME}/manager"
+echo -e "${RED}If you have set different ports in the bind, use the URL:Port (e.g. https://evo.dominio.com.br:444)"
